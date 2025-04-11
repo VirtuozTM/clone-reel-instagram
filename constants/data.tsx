@@ -11,6 +11,16 @@ import {
   EyeSlash,
   Warning,
   FadersHorizontal,
+  WhatsappLogo,
+  ShareNetwork,
+  PlusCircle,
+  LinkSimple,
+  SnapchatLogo,
+  MessengerLogo,
+  ChatCenteredDots,
+  FacebookLogo,
+  XLogo,
+  ThreadsLogo,
 } from "phosphor-react-native";
 
 export const categories = [
@@ -116,4 +126,35 @@ export const quickActions: ListItem[] = [
     title: "Séquence",
     color: "#fff",
   },
+];
+
+export const sharingApps = [
+  {
+    id: "whatsapp",
+    name: "Whatsapp",
+    icon: WhatsappLogo,
+    color: "#3ad664",
+    iconSize: 32.5,
+  },
+  { id: "share", name: "Partager", icon: ShareNetwork, color: "#363636" },
+  {
+    id: "story",
+    name: "Ajouter à la story",
+    icon: PlusCircle,
+    color: "#363636",
+  },
+  { id: "link", name: "Copier le lien", icon: LinkSimple, color: "#363636" },
+  {
+    id: "snapchat",
+    name: "Snapchat",
+    icon: SnapchatLogo,
+    color: "#faff10",
+    iconColor: "black",
+    iconWeight: "duotone",
+  },
+  { id: "messenger", name: "Messenger", icon: MessengerLogo, color: "#aa37eb" },
+  { id: "texto", name: "Texto", icon: ChatCenteredDots, color: "#2a5ac6" },
+  { id: "facebook", name: "Facebook", icon: FacebookLogo, color: "#1a78f4" },
+  { id: "x", name: "X", icon: XLogo, color: "#000000" },
+  { id: "threads", name: "Threads", icon: ThreadsLogo, color: "#000000" },
 ];
