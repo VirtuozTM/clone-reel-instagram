@@ -1,6 +1,6 @@
 import { Pressable, Dimensions, StyleSheet, Text, View } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Friend } from "../services/mockData";
+import { Friend } from "@/types";
 import {
   BottomSheetFlashList,
   BottomSheetTextInput,
@@ -8,22 +8,7 @@ import {
   BottomSheetFlatList,
 } from "@gorhom/bottom-sheet";
 import { Image } from "expo-image";
-import {
-  LinkSimple,
-  PlusCircle,
-  ShareNetwork,
-  SnapchatLogo,
-  FacebookLogo,
-  ThreadsLogo,
-  WhatsappLogo,
-  XLogo,
-  ChatCenteredDots,
-  MessengerLogo,
-  MagnifyingGlass,
-  UserPlus,
-  Check,
-} from "phosphor-react-native";
-import { IconProps } from "phosphor-react-native";
+import { MagnifyingGlass, UserPlus, Check } from "phosphor-react-native";
 import Animated, {
   Easing,
   FadeIn,
@@ -32,82 +17,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-
-type SharingApp = {
-  id: string;
-  name: string;
-  icon: React.FC<IconProps>;
-  color: string;
-  iconColor?: string;
-  iconWeight?: "regular" | "duotone";
-  iconSize?: number;
-};
-
-const sharingApps: SharingApp[] = [
-  {
-    id: "whatsapp",
-    name: "Whatsapp",
-    icon: WhatsappLogo,
-    color: "#3ad664",
-    iconSize: 32.5,
-  },
-  {
-    id: "share",
-    name: "Partager",
-    icon: ShareNetwork,
-    color: "#363636",
-  },
-  {
-    id: "story",
-    name: "Ajouter à la story",
-    icon: PlusCircle,
-    color: "#363636",
-  },
-  {
-    id: "link",
-    name: "Copier le lien",
-    icon: LinkSimple,
-    color: "#363636",
-  },
-  {
-    id: "snapchat",
-    name: "Snapchat",
-    icon: SnapchatLogo,
-    color: "#faff10",
-    iconColor: "black",
-    iconWeight: "duotone",
-  },
-  {
-    id: "messenger",
-    name: "Messenger",
-    icon: MessengerLogo,
-    color: "#aa37eb",
-  },
-  {
-    id: "texto",
-    name: "Texto",
-    icon: ChatCenteredDots,
-    color: "#2a5ac6",
-  },
-  {
-    id: "facebook",
-    name: "Facebook",
-    icon: FacebookLogo,
-    color: "#1a78f4",
-  },
-  {
-    id: "x",
-    name: "X",
-    icon: XLogo,
-    color: "#000000",
-  },
-  {
-    id: "threads",
-    name: "Threads",
-    icon: ThreadsLogo,
-    color: "#000000",
-  },
-];
+import { sharingApps } from "@/constants/data";
 
 const ModalSharing = ({ friends }: { friends: Friend[] }) => {
   const inputRef = useRef<any>(null);
@@ -122,27 +32,21 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
   const itemWidth = (windowWidth - 40) / 3;
 
   useEffect(() => {
-    containerHeight.value = withTiming(
-      selectedFriends.length > 1 ? 180 : 120, // hauteur souhaitée
-      {
-        duration: 300,
-        easing: Easing.out(Easing.ease),
-      }
-    );
+    containerHeight.value = withTiming(selectedFriends.length > 1 ? 180 : 120, {
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+    });
   }, [selectedFriends.length]);
 
   const toggleFriendSelection = useCallback((friendId: string) => {
     setSelectedFriends((prev) => {
-      // Si l'ami est déjà sélectionné, on le retire
       if (prev.includes(friendId)) {
         const newSelected = prev.filter((id) => id !== friendId);
-        // Si on n'a plus d'amis sélectionnés, on repasse en mode "picking"
         if (newSelected.length === 0) {
           setIsPickingFriend(false);
         }
         return newSelected;
       }
-      // Sinon on l'ajoute et on passe en mode "sending"
       setIsPickingFriend(true);
       return [...prev, friendId];
     });
@@ -151,15 +55,13 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
   const renderGridItem = useCallback(
     ({ item }: { item: Friend }) => {
       const isSelected = selectedFriends.includes(item.id);
-
       return (
         <Pressable
           onPress={() => toggleFriendSelection(item.id)}
           style={[styles.gridItem, { width: itemWidth }]}
         >
-          <View style={{ position: "relative" }}>
+          <View style={styles.avatarWrapper}>
             <Image source={item.user.avatar} style={styles.gridAvatar} />
-
             {isSelected && (
               <View style={styles.selectedBadge}>
                 <View style={styles.checkmark}>
@@ -178,19 +80,15 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
     [itemWidth, selectedFriends, toggleFriendSelection]
   );
 
-  const renderSharingApp = useCallback(({ item }: { item: SharingApp }) => {
+  const renderSharingApp = useCallback(({ item }: { item: any }) => {
     const IconComponent = item.icon;
     return (
-      <View style={{ flexDirection: "column", alignItems: "center", gap: 5 }}>
+      <View style={styles.sharingAppItem}>
         <View
-          style={{
-            width: 55,
-            height: 55,
-            borderRadius: 27.5,
-            backgroundColor: item.color,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
+          style={[
+            styles.sharingAppIconWrapper,
+            { backgroundColor: item.color },
+          ]}
         >
           <IconComponent
             size={item.iconSize || 27.5}
@@ -203,43 +101,21 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
     );
   }, []);
 
-  const animatedSendContainerStyle = useAnimatedStyle(() => {
-    return {
-      height: containerHeight.value,
-    };
-  });
+  const animatedSendContainerStyle = useAnimatedStyle(() => ({
+    height: containerHeight.value,
+  }));
 
   return (
-    <BottomSheetView
-      style={{ flex: 1, backgroundColor: "#262626", marginTop: -1 }}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 5,
-          paddingHorizontal: 15,
-          borderRadius: 10,
-          backgroundColor: "#363636",
-          margin: 15,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: 5,
-            flex: 1,
-          }}
-        >
+    <BottomSheetView style={styles.sheetContainer}>
+      <View style={styles.searchContainer}>
+        <View style={styles.searchInputWrapper}>
           <MagnifyingGlass size={25} color="#808080" />
           <BottomSheetTextInput
             ref={inputRef}
             placeholder="Rechercher"
             placeholderTextColor="#808080"
             style={styles.input}
-            multiline={true}
+            multiline
           />
         </View>
         <UserPlus size={25} color="#808080" />
@@ -252,14 +128,9 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
         estimatedItemSize={145}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
-        contentContainerStyle={{
-          paddingTop: 30,
-          paddingHorizontal: 10,
-        }}
+        contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <Text style={{ color: "#fff", paddingHorizontal: 15 }}>
-            Aucun ami pour le moment.
-          </Text>
+          <Text style={styles.emptyText}>Aucun ami pour le moment.</Text>
         }
         extraData={selectedFriends}
       />
@@ -271,7 +142,7 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
             keyExtractor={(item) => item.id}
             renderItem={renderSharingApp}
             horizontal
-            contentContainerStyle={{ gap: 20, paddingHorizontal: 10 }}
+            contentContainerStyle={styles.sharingList}
             showsHorizontalScrollIndicator={false}
           />
         </View>
@@ -282,24 +153,11 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
           <BottomSheetTextInput
             placeholder="Ecrivez un message..."
             placeholderTextColor="#909090"
-            style={{
-              fontSize: 15,
-              color: "white",
-              paddingHorizontal: 10,
-              paddingVertical: 5,
-            }}
-            multiline={true}
+            style={styles.messageInput}
+            multiline
           />
-          <Pressable
-            style={{
-              backgroundColor: "#3c89ee",
-              padding: 12.5,
-              alignItems: "center",
-              justifyContent: "center",
-              borderRadius: 7.5,
-            }}
-          >
-            <Text style={{ color: "white", fontWeight: "bold" }}>
+          <Pressable style={styles.sendButton}>
+            <Text style={styles.sendButtonText}>
               {selectedFriends.length > 1 ? "Envoyer séparément" : "Envoyer"}
             </Text>
           </Pressable>
@@ -307,39 +165,21 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
             <Animated.View
               entering={FadeIn.duration(700)}
               exiting={FadeOut.duration(700)}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-                backgroundColor: "#262626",
-                padding: 12.5,
-                justifyContent: "center",
-                borderRadius: 7.5,
-                borderWidth: 2,
-                borderColor: "white",
-              }}
+              style={styles.groupContainer}
             >
-              <View style={{ flexDirection: "row", marginRight: 10 }}>
+              <View style={styles.groupAvatarList}>
                 {selectedFriendsAvatars.map((avatar, index) => (
                   <Image
                     key={index}
                     source={avatar}
-                    style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: 12,
-                      borderWidth: 2,
-                      borderColor: "#262626",
-                      zIndex: 3 - index,
-                      marginRight: -10,
-                    }}
+                    style={[
+                      styles.groupAvatar,
+                      { zIndex: 3 - index, marginRight: -10 },
+                    ]}
                   />
                 ))}
               </View>
-
-              <Text style={{ color: "white", fontWeight: "bold" }}>
-                Créer un groupe
-              </Text>
+              <Text style={styles.groupText}>Créer un groupe</Text>
             </Animated.View>
           )}
         </Animated.View>
@@ -351,6 +191,27 @@ const ModalSharing = ({ friends }: { friends: Friend[] }) => {
 export default ModalSharing;
 
 const styles = StyleSheet.create({
+  sheetContainer: {
+    flex: 1,
+    backgroundColor: "#262626",
+    marginTop: -1,
+  },
+  searchContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 5,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    backgroundColor: "#363636",
+    margin: 15,
+  },
+  searchInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    flex: 1,
+  },
   input: {
     fontSize: 15,
     lineHeight: 20,
@@ -361,6 +222,9 @@ const styles = StyleSheet.create({
   gridItem: {
     alignItems: "center",
     marginBottom: 20,
+  },
+  avatarWrapper: {
+    position: "relative",
   },
   gridAvatar: {
     width: 65,
@@ -398,13 +262,42 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-
+  listContent: {
+    paddingTop: 30,
+    paddingHorizontal: 10,
+  },
+  emptyText: {
+    color: "#fff",
+    paddingHorizontal: 15,
+  },
   sharingContainer: {
     paddingVertical: 10,
     borderTopWidth: 2,
     borderTopColor: "#303030",
     backgroundColor: "#262626",
     gap: 15,
+  },
+  sharingList: {
+    gap: 20,
+    paddingHorizontal: 10,
+  },
+  sharingAppItem: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 5,
+  },
+  sharingAppIconWrapper: {
+    width: 55,
+    height: 55,
+    borderRadius: 27.5,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sharingText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "normal",
+    textAlign: "center",
   },
   sendContainer: {
     flexDirection: "column",
@@ -415,10 +308,47 @@ const styles = StyleSheet.create({
     backgroundColor: "#262626",
     gap: 15,
   },
-  sharingText: {
+  messageInput: {
+    fontSize: 15,
     color: "white",
-    fontSize: 12,
-    fontWeight: "normal",
-    textAlign: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  sendButton: {
+    backgroundColor: "#3c89ee",
+    padding: 12.5,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 7.5,
+  },
+  sendButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  groupContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    backgroundColor: "#262626",
+    padding: 12.5,
+    justifyContent: "center",
+    borderRadius: 7.5,
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  groupAvatarList: {
+    flexDirection: "row",
+    marginRight: 10,
+  },
+  groupAvatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#262626",
+  },
+  groupText: {
+    color: "white",
+    fontWeight: "bold",
   },
 });

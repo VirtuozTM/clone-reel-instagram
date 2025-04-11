@@ -28,7 +28,6 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
   const hasAnimated = useRef(false);
   const showSendButton = commentText.trim().length > 0 || isAnswering;
 
-  // Déclencher l'animation uniquement lorsque le bouton d'envoi apparaît pour la première fois
   useEffect(() => {
     if (showSendButton && !hasAnimated.current) {
       scaleValue.value = 0;
@@ -43,8 +42,6 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
     setIsAnswering(true);
     setReplyingToUser(username);
     setCommentText(`@${username} `);
-
-    // Focus l'input après un court délai pour s'assurer que le clavier est apparu
     setTimeout(() => {
       if (inputRef.current) {
         inputRef.current.focus();
@@ -60,7 +57,6 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
 
   const handleSend = useCallback(() => {
     console.log("Envoi du message:", commentText);
-    // Ici, vous pouvez ajouter la logique pour envoyer le commentaire
     setCommentText("");
     if (isAnswering) {
       setIsAnswering(false);
@@ -78,49 +74,24 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
     ({ item }: { item: Comment }) => (
       <View style={styles.commentsContainer}>
         <View style={styles.comment}>
-          <Image
-            source={item.user.avatar}
-            style={{
-              width: 40,
-              aspectRatio: 1,
-              borderRadius: 25,
-              alignSelf: "flex-start",
-            }}
-          />
-          <View
-            style={{
-              marginLeft: 15,
-              gap: 7.5,
-              maxWidth: "80%",
-            }}
-          >
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                gap: 10,
-              }}
-            >
-              <Text style={{ color: "white", fontSize: 13 }}>
-                {item.user.name}
-              </Text>
-              <Text style={{ color: "#808080", fontSize: 13 }}>
+          <Image source={item.user.avatar} style={styles.avatar} />
+          <View style={styles.commentContent}>
+            <View style={styles.commentHeader}>
+              <Text style={styles.username}>{item.user.name}</Text>
+              <Text style={styles.timestamp}>
                 {new Date(item.timestamp).getHours()} h
               </Text>
             </View>
-            <Text style={{ color: "white", fontSize: 14 }}>{item.text}</Text>
+            <Text style={styles.commentText}>{item.text}</Text>
             <Pressable onPress={() => handleReply(item.user.name)}>
-              <Text style={{ fontSize: 13, color: "#808080" }}>Répondre</Text>
+              <Text style={styles.replyButton}>Répondre</Text>
             </Pressable>
           </View>
         </View>
-        <View style={{ flexDirection: "column", alignItems: "center", gap: 5 }}>
+        <View style={styles.likesColumn}>
           <Pressable
             onPress={() => setIsLiked(!isLiked)}
-            style={{
-              alignItems: "center",
-              padding: 5,
-            }}
+            style={styles.likeButton}
           >
             <Heart
               size={20}
@@ -128,7 +99,7 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
               color={isLiked ? "red" : "white"}
             />
           </Pressable>
-          <Text style={{ color: "#fff", fontSize: 12 }}>{item.likesCount}</Text>
+          <Text style={styles.likeCount}>{item.likesCount}</Text>
         </View>
       </View>
     ),
@@ -149,16 +120,8 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
   );
 
   return (
-    <BottomSheetView style={{ flex: 1, backgroundColor: "#262626" }}>
-      <View
-        style={{
-          width: "100%",
-          backgroundColor: "#262626",
-          paddingTop: 10,
-          paddingHorizontal: 15,
-          marginBottom: -1,
-        }}
-      >
+    <BottomSheetView style={styles.container}>
+      <View style={styles.headerContainer}>
         <View style={styles.header}>
           <Text style={styles.title}>Commentaires</Text>
         </View>
@@ -166,20 +129,15 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
       <BottomSheetFlashList
         data={comments}
         keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={() => <View style={{ height: 30 }} />}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
         estimatedItemSize={125}
-        contentContainerStyle={{
-          paddingHorizontal: 15,
-          paddingTop: 20,
-          paddingBottom: 10,
-          backgroundColor: "#262626",
-        }}
+        contentContainerStyle={styles.flashListContent}
         ListEmptyComponent={
-          <Text style={{ color: "#fff", paddingHorizontal: 15 }}>
+          <Text style={styles.emptyText}>
             Aucun commentaire pour le moment.
           </Text>
         }
@@ -188,23 +146,9 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
         <Animated.View
           entering={SlideInDown}
           exiting={SlideOutDown}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            backgroundColor: "#343434",
-          }}
+          style={styles.replyBanner}
         >
-          <Text
-            style={{
-              color: "#808080",
-              fontSize: 15,
-            }}
-          >
-            Réponse à {replyingToUser}
-          </Text>
+          <Text style={styles.replyText}>Réponse à {replyingToUser}</Text>
           <Pressable onPress={cancelReply}>
             <X size={15} color="#808080" />
           </Pressable>
@@ -236,15 +180,7 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
           />
           {showSendButton ? (
             <Animated.View style={animatedSendButtonStyle}>
-              <Pressable
-                onPress={handleSend}
-                style={{
-                  paddingHorizontal: 15,
-                  paddingVertical: 5,
-                  backgroundColor: "#3e8df8",
-                  borderRadius: 20,
-                }}
-              >
+              <Pressable style={styles.sendButton} onPress={handleSend}>
                 <ArrowUp size={22.5} color="white" weight="bold" />
               </Pressable>
             </Animated.View>
@@ -265,17 +201,20 @@ export default ModalComments;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#262626",
+  },
+  headerContainer: {
     width: "100%",
     backgroundColor: "#262626",
+    paddingTop: 10,
+    paddingHorizontal: 15,
+    marginBottom: -1,
   },
   header: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
-  },
-  headerLeft: {
-    padding: 16,
   },
   title: {
     fontSize: 15,
@@ -284,19 +223,77 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   commentsContainer: {
-    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#262626",
   },
   comment: {
     flexDirection: "row",
     alignItems: "center",
   },
-  commentText: {
-    fontSize: 15,
+  commentContent: {
+    marginLeft: 15,
+    gap: 7.5,
+    maxWidth: "80%",
+  },
+  commentHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  username: {
     color: "white",
+    fontSize: 13,
+  },
+  timestamp: {
+    color: "#808080",
+    fontSize: 13,
+  },
+  commentText: {
+    color: "white",
+    fontSize: 14,
+  },
+  replyButton: {
+    fontSize: 13,
+    color: "#808080",
+  },
+  likesColumn: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 5,
+  },
+  likeButton: {
+    alignItems: "center",
+    padding: 5,
+  },
+  likeCount: {
+    color: "#fff",
+    fontSize: 12,
+  },
+  separator: {
+    height: 30,
+  },
+  flashListContent: {
+    paddingHorizontal: 15,
+    paddingTop: 20,
+    paddingBottom: 10,
+    backgroundColor: "#262626",
+  },
+  emptyText: {
+    color: "#fff",
+    paddingHorizontal: 15,
+  },
+  replyBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#343434",
+  },
+  replyText: {
+    color: "#808080",
+    fontSize: 15,
   },
   inputContainer: {
     width: "100%",
@@ -334,5 +331,11 @@ const styles = StyleSheet.create({
   },
   emojiText: {
     fontSize: 22,
+  },
+  sendButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    backgroundColor: "#3e8df8",
+    borderRadius: 20,
   },
 });
