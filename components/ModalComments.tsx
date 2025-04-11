@@ -327,6 +327,7 @@ const styles = StyleSheet.create({
   },
   emojiList: {
     paddingVertical: 8,
+    paddingHorizontal: 15,
   },
   emojiButton: {
     paddingHorizontal: 10,
