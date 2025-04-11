@@ -6,10 +6,11 @@ export type Ref = BottomSheetModal;
 
 interface CustomBottomSheedModalProps {
   children: React.ReactNode;
+  isDynamic?: boolean;
 }
 
 const CustomBottomSheedModal = forwardRef<Ref, CustomBottomSheedModalProps>(
-  ({ children }, ref) => {
+  ({ children, isDynamic = false }, ref) => {
     // ---------------------------------- MODAL PROPS ------------------------------------
     const renderBackdrop = useCallback(
       (props: any) => (
@@ -22,10 +23,13 @@ const CustomBottomSheedModal = forwardRef<Ref, CustomBottomSheedModalProps>(
       []
     );
     const topInset = RNStatusBar.currentHeight || 0;
-    const snapPoints = useMemo(() => ["70%"], []);
+    const snapPoints = useMemo(() => {
+      return isDynamic ? undefined : ["70%"];
+    }, [isDynamic]);
 
     const handleSheetChanges = useCallback((index: number) => {
       console.log("handleSheetChanges", index);
+      console.log("isDynamic", isDynamic);
     }, []);
 
     return (
@@ -40,7 +44,7 @@ const CustomBottomSheedModal = forwardRef<Ref, CustomBottomSheedModalProps>(
         keyboardBlurBehavior="restore"
         enablePanDownToClose={true}
         enableDismissOnClose
-        enableDynamicSizing={false}
+        enableDynamicSizing={isDynamic}
         handleIndicatorStyle={styles.handleIndicator}
         handleStyle={styles.handle}
         topInset={topInset}
