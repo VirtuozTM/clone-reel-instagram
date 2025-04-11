@@ -8,6 +8,7 @@ import CustomBottomSheedModal from "./CustomBottomSheetModal";
 import React from "react";
 import ModalComments from "./ModalComments";
 import ModalSharing from "./ModalSharing";
+import ModalOptions from "./ModalOptions";
 
 type VerticalListProps = {
   data: Item[];
@@ -26,6 +27,10 @@ const VerticalCarousel = ({ data }: VerticalListProps) => {
   const {
     bottomSheetModalRef: bottomSheetModalRefSharing,
     openModal: openModalSharing,
+  } = useCustomModalBackHandler();
+  const {
+    bottomSheetModalRef: bottomSheetModalRefOptions,
+    openModal: openModalOptions,
   } = useCustomModalBackHandler();
 
   const handleOpenComments = (video: Item) => {
@@ -58,6 +63,7 @@ const VerticalCarousel = ({ data }: VerticalListProps) => {
             shouldPlay={index === visibleIndex}
             openModalComments={() => handleOpenComments(item)}
             openModalSharing={() => handleOpenSharing(item)}
+            openModalOptions={() => openModalOptions()}
           />
         )}
         pagingEnabled
@@ -74,6 +80,9 @@ const VerticalCarousel = ({ data }: VerticalListProps) => {
       </CustomBottomSheedModal>
       <CustomBottomSheedModal ref={bottomSheetModalRefSharing}>
         <ModalSharing friends={currentVideo?.friends || []} />
+      </CustomBottomSheedModal>
+      <CustomBottomSheedModal ref={bottomSheetModalRefOptions} isDynamic={true}>
+        <ModalOptions />
       </CustomBottomSheedModal>
     </>
   );
