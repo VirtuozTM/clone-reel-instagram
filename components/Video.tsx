@@ -7,6 +7,7 @@ import {
   UIManager,
   View,
 } from "react-native";
+import React from "react";
 import { Item } from "../services/mockData";
 import { Image } from "expo-image";
 import {
@@ -19,6 +20,7 @@ import {
   Pause,
   Play,
   Camera,
+  SpeakerHigh,
 } from "phosphor-react-native";
 import { useState, useEffect, memo, useRef } from "react";
 import { useVideoPlayer, VideoView } from "expo-video";
@@ -28,14 +30,17 @@ import Animated, {
   useSharedValue,
   withTiming,
   Easing,
+  withSpring,
+  withDelay,
+  withSequence,
 } from "react-native-reanimated";
-import { forwardRef, useImperativeHandle } from "react";
 
 type VideoProps = {
   item: Item;
   shouldPlay: boolean;
   openModalComments: () => void;
   openModalSharing: () => void;
+  openModalOptions: () => void;
 };
 
 const { height } = Dimensions.get("window");
@@ -50,16 +55,20 @@ const VideoComponent = ({
   shouldPlay,
   openModalComments,
   openModalSharing,
+  openModalOptions,
 }: VideoProps) => {
   const [isFollowed, setIsFollowed] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(item.likesCount);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
   const progress = useSharedValue(0);
   const overlayOpacity = useSharedValue(0);
   const descriptionHeight = useSharedValue(16);
-
+  const scale = useSharedValue(1);
+  const bigHeartScale = useSharedValue(0);
+  const bigHeartOpacity = useSharedValue(0);
   const containerRef = useRef<View>(null);
 
   // // On crée un player par item
@@ -139,6 +148,32 @@ const VideoComponent = ({
     }
   };
 
+  const handleLikePress = () => {
+    // Animation de "pop"
+    scale.value = withTiming(1.5, { duration: 100 }, () => {
+      scale.value = withTiming(1, { duration: 100 });
+    });
+
+    // Toggle like
+    setIsLiked((prev) => {
+      const newState = !prev;
+      setLikesCount((count) => count + (newState ? 1 : -1));
+      return newState;
+    });
+
+    if (!isLiked) {
+      bigHeartScale.value = withSequence(
+        withSpring(1.5, { damping: 8 }),
+        withDelay(750, withTiming(0.7, { duration: 250 }))
+      );
+
+      bigHeartOpacity.value = withSequence(
+        withTiming(1),
+        withDelay(750, withTiming(0, { duration: 250 }))
+      );
+    }
+  };
+
   const animatedStyles = useAnimatedStyle(() => {
     return {
       width: `${progress.value * 100}%`,
@@ -163,6 +198,23 @@ const VideoComponent = ({
     };
   });
 
+  const bigHeartAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: bigHeartScale.value }],
+    opacity: bigHeartOpacity.value,
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 0,
+  }));
+
+  const heartAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
   // Styles animés pour la description
   const descriptionAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -182,13 +234,20 @@ const VideoComponent = ({
         nativeControls={false}
       />
 
+      <Animated.View style={bigHeartAnimatedStyle}>
+        <Heart size={60} weight="fill" color="#fff" />
+      </Animated.View>
+
       {/* Overlay en pressable pour toggle play/pause */}
       <Pressable
-        style={StyleSheet.absoluteFill}
+        style={[StyleSheet.absoluteFill]}
         onPress={handleTogglePlayPause}
       >
         {isPaused && (
           <View style={styles.pauseIconContainer}>
+            <View style={styles.soundIconBackground}>
+              <SpeakerHigh size={17.5} weight="fill" color="white" />
+            </View>
             <View style={styles.pauseIconBackground}>
               <Play size={30} weight="fill" color="white" />
             </View>
@@ -269,16 +328,15 @@ const VideoComponent = ({
             </View>
 
             <View style={styles.actionsColumn}>
-              <Pressable
-                onPress={() => setIsLiked(!isLiked)}
-                style={styles.actionItem}
-              >
-                <Heart
-                  size={32}
-                  weight={isLiked ? "fill" : "regular"}
-                  color={isLiked ? "#FF0000" : "#fff"}
-                />
-                <Text style={styles.actionText}>{item.likesCount}</Text>
+              <Pressable onPress={handleLikePress} style={styles.actionItem}>
+                <Animated.View style={heartAnimatedStyle}>
+                  <Heart
+                    size={32}
+                    weight={isLiked ? "fill" : "regular"}
+                    color={isLiked ? "#FF0000" : "#fff"}
+                  />
+                </Animated.View>
+                <Text style={styles.actionText}>{likesCount}</Text>
               </Pressable>
 
               <Pressable onPress={openModalComments} style={styles.actionItem}>
@@ -291,7 +349,9 @@ const VideoComponent = ({
                 <Text style={styles.actionText}>{item.sharesCount}</Text>
               </Pressable>
 
-              <DotsThreeVertical size={24} weight="bold" color="#fff" />
+              <Pressable onPress={openModalOptions} style={styles.actionItem}>
+                <DotsThreeVertical size={24} weight="bold" color="#fff" />
+              </Pressable>
 
               <View style={styles.musicContainer}>
                 <Image
@@ -385,12 +445,27 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: "center",
     alignItems: "center",
+    gap: 15,
   },
   pauseIconBackground: {
     width: 70,
     height: 70,
     borderRadius: 35,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  soundIconContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  soundIconBackground: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
   },
