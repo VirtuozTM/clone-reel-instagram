@@ -56,38 +56,6 @@ const CustomBottomSheedModal = forwardRef<Ref, CustomBottomSheedModalProps>(
 );
 
 const styles = StyleSheet.create({
-  contentContainer: {
-    flex: 1,
-    alignItems: "center",
-    backgroundColor: "white",
-  },
-  containerHeadline: {
-    fontSize: 24,
-    fontWeight: "600",
-    padding: 20,
-  },
-  shadow: {
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 10,
-  },
-  separator: {
-    width: "100%",
-    borderColor: "#cfcfcf",
-    backgroundColor: "#cfcfcf",
-    borderWidth: 0.5,
-  },
-  body: {
-    paddingHorizontal: 25,
-    paddingVertical: 25,
-    width: "100%",
-  },
-  dateTimePickerContainer: {
-    marginStart: 54,
-    flexGrow: 1,
-    marginBottom: 20,
-  },
   handle: {
     backgroundColor: "#262626",
     borderTopLeftRadius: 15,
