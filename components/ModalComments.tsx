@@ -2,7 +2,8 @@ import { Pressable, StyleSheet, Text, View, TextInput } from "react-native";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUp, Gift, Heart, Info, Smiley, X } from "phosphor-react-native";
 import { Image } from "expo-image";
-import { Comment } from "../services/mockData";
+import { Comment } from "@/types";
+import { emojis } from "@/constants/data";
 import {
   BottomSheetFlashList,
   BottomSheetFlatList,
@@ -22,7 +23,6 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
   const [isAnswering, setIsAnswering] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [replyingToUser, setReplyingToUser] = useState("");
-  const emojis = ["❤️", "🙌", "🔥", "👏", "😔", "🥰", "😮", "😂"];
   const inputRef = useRef<any>(null);
   const scaleValue = useSharedValue(0);
   const hasAnimated = useRef(false);
