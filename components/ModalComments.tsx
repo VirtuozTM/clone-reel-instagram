@@ -105,7 +105,7 @@ const ModalComments = ({ comments }: { comments: Comment[] }) => {
                 {item.user.name}
               </Text>
               <Text style={{ color: "#808080", fontSize: 13 }}>
-                {new Date(item.timestamp).toLocaleTimeString()}
+                {new Date(item.timestamp).getHours()} h
               </Text>
             </View>
             <Text style={{ color: "white", fontSize: 14 }}>{item.text}</Text>
