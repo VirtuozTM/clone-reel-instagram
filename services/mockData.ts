@@ -1,63 +1,27 @@
 // services/mockData.ts
 import { faker } from "@faker-js/faker";
-import { fetchPixabayVideos } from "@/api"; // <-- on importe la fonction de l’API
+import { fetchPixabayVideos } from "@/api";
+import { categories } from "@/constants/data";
+
 faker.seed(100);
-
-const categories = [
-  "cat",
-  "dog",
-  "nature",
-  "city",
-  "food",
-  "people",
-  "animals",
-  "sports",
-  "business",
-  "technics",
-];
-
-export type Comment = {
-  id: string;
-  user: {
-    name: string;
-    avatar: string;
-  };
-  text: string;
-  timestamp: string;
-  likesCount: number;
-};
-
-export type Friend = {
-  id: string;
-  user: {
-    name: string;
-    avatar: string;
-  };
-};
 
 /**
  * Appelle l’API Pixabay pour récupérer un set de vidéos,
  * et retourne un tableau simulé (Faker) pour compléter ces vidéos.
  */
 export async function fetchMockData() {
-  // 1) On choisit un mot-clé au hasard (facultatif)
   const randomCategory =
     categories[Math.floor(Math.random() * categories.length)];
 
-  // 2) On récupère un lot de vidéos (par ex. 30)
   const pixabayResponse = await fetchPixabayVideos({
     q: randomCategory,
     per_page: 30,
   });
 
-  // Récupération du tableau de vidéos : (hits: [...])
   const hits = pixabayResponse.hits || [];
 
-  // 3) On mappe chaque vidéo pour créer un "fake item" + la vidéo
-  //    On limite à 30 items maxi (ou la longueur de hits si <30)
   const data = hits.slice(0, 30).map((hit) => {
     const randomId = faker.string.uuid();
-    // On prend par exemple la version medium de la vidéo, ou small
     const videoSource = hit.videos.medium?.url || hit.videos.small?.url || "";
 
     const generateComments = () =>
@@ -84,7 +48,7 @@ export async function fetchMockData() {
       );
 
     return {
-      key: randomId, // identifiant unique pour nos items
+      key: randomId,
       title: faker.music.songName(),
       image: faker.image.urlPicsumPhotos({
         width: 1000,

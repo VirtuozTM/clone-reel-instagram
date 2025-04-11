@@ -13,6 +13,21 @@ import {
   FadersHorizontal,
 } from "phosphor-react-native";
 
+export const categories = [
+  "cat",
+  "dog",
+  "nature",
+  "city",
+  "food",
+  "people",
+  "animals",
+  "sports",
+  "business",
+  "technics",
+];
+
+export const emojis = ["❤️", "🙌", "🔥", "👏", "😔", "🥰", "😮", "😂"];
+
 export const options: ListItem[] = [
   {
     id: "sep1",
