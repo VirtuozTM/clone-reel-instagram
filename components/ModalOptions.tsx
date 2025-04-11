@@ -1,114 +1,25 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
-import {
-  BookmarkSimple,
-  ClosedCaptioning,
-  FolderSimplePlus,
-  PlusSquare,
-  Translate,
-  Selection,
-  Eye,
-  EyeSlash,
-  Warning,
-  FadersHorizontal,
-} from "phosphor-react-native";
-
-type ListItem = {
-  id: string;
-  icon: React.ReactNode;
-  color?: string;
-  title: string;
-  subtitle?: string;
-  withSeparator?: boolean;
-};
-
-const items: ListItem[] = [
-  {
-    id: "sep1",
-    icon: null,
-    title: "",
-    withSeparator: true,
-  },
-  {
-    id: "1",
-    icon: <Translate size={24} color="#fff" />,
-    title: "Traductions",
-    color: "#fff",
-  },
-  {
-    id: "2",
-    icon: <ClosedCaptioning size={24} color="#fff" />,
-    title: "Discussions",
-    color: "#fff",
-  },
-  {
-    id: "3",
-    icon: <Selection size={24} color="#fff" />,
-    title: "Voir en plein écran",
-    color: "#fff",
-  },
-  {
-    id: "4",
-    icon: <PlusSquare size={24} color="#fff" />,
-    title: "Voir tous les remix",
-    color: "#fff",
-  },
-  {
-    id: "sep1",
-    icon: null,
-    title: "",
-    withSeparator: true,
-  },
-  {
-    id: "5",
-    icon: <Eye size={24} color="#fff" />,
-    title: "Intéressé(e)",
-    color: "#fff",
-  },
-  {
-    id: "6",
-    icon: <EyeSlash size={24} color="#fff" />,
-    title: "Ça ne m'intéresse pas",
-    color: "#fff",
-  },
-  {
-    id: "7",
-    icon: <Warning size={24} color="red" />,
-    title: "Signaler...",
-    color: "red",
-  },
-  {
-    id: "sep1",
-    icon: null,
-    title: "",
-    withSeparator: true,
-  },
-  {
-    id: "8",
-    icon: <FadersHorizontal size={24} color="#fff" />,
-    title: "Gérer les préférences de contenu",
-    color: "#fff",
-  },
-];
+import { options, quickActions } from "@/constants/data";
 
 const CustomList = () => {
   return (
     <View style={styles.container}>
-      {items.map((item, index) => {
-        if (item.withSeparator) {
+      {options.map((option, index) => {
+        if (option.withSeparator) {
           return <View key={`sep-${index}`} style={styles.separator} />;
         }
 
         return (
-          <View key={item.id} style={styles.item}>
-            <View style={styles.iconContainer}>{item.icon}</View>
+          <View key={option.id} style={styles.item}>
+            <View style={styles.iconContainer}>{option.icon}</View>
             <View style={styles.textContainer}>
-              <Text style={[styles.title, { color: item.color }]}>
-                {item.title}
+              <Text style={[styles.title, { color: option.color }]}>
+                {option.title}
               </Text>
-              {item.subtitle && (
-                <Text style={styles.subtitle}>{item.subtitle}</Text>
+              {option.subtitle && (
+                <Text style={styles.subtitle}>{option.subtitle}</Text>
               )}
             </View>
           </View>
@@ -121,31 +32,15 @@ const CustomList = () => {
 const ModalOptions = () => {
   return (
     <BottomSheetView style={{ backgroundColor: "#262626" }}>
-      <View style={{ paddingVertical: 10, flexDirection: "row", gap: 10 }}>
-        <View style={styles.optionItem}>
-          <View style={styles.iconWrapper}>
-            <BookmarkSimple size={27.5} color="#fff" />
+      <View style={styles.quickActionsRow}>
+        {quickActions.map((item) => (
+          <View key={item.id} style={styles.optionItem}>
+            <View style={styles.iconWrapper}>{item.icon}</View>
+            <Text style={styles.optionText} numberOfLines={1}>
+              {item.title}
+            </Text>
           </View>
-          <Text style={styles.optionText} numberOfLines={1}>
-            Enregistrer
-          </Text>
-        </View>
-        <View style={styles.optionItem}>
-          <View style={styles.iconWrapper}>
-            <PlusSquare size={27.5} color="#fff" />
-          </View>
-          <Text style={styles.optionText} numberOfLines={1}>
-            Remixer
-          </Text>
-        </View>
-        <View style={styles.optionItem}>
-          <View style={styles.iconWrapper}>
-            <FolderSimplePlus size={27.5} color="#fff" />
-          </View>
-          <Text style={styles.optionText} numberOfLines={1}>
-            Séquence
-          </Text>
-        </View>
+        ))}
       </View>
       <CustomList />
     </BottomSheetView>
@@ -159,6 +54,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 10,
+  },
+  quickActionsRow: {
+    paddingVertical: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 10,
   },
   iconWrapper: {
