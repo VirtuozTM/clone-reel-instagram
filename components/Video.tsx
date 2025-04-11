@@ -1,12 +1,4 @@
-import {
-  Dimensions,
-  findNodeHandle,
-  Pressable,
-  StyleSheet,
-  Text,
-  UIManager,
-  View,
-} from "react-native";
+import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Item } from "../services/mockData";
 import { Image } from "expo-image";
