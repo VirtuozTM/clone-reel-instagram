@@ -62,7 +62,6 @@ const VideoComponent = ({
   const bigHeartScale = useSharedValue(0);
   const bigHeartOpacity = useSharedValue(0);
   const containerRef = useRef<View>(null);
-  const insets = useSafeAreaInsets();
 
   // // On crée un player par item
   const player = useVideoPlayer(item.videoSource, (playerInstance) => {

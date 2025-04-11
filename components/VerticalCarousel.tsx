@@ -1,4 +1,4 @@
-import { Dimensions, ViewToken } from "react-native";
+import { Dimensions, Platform, ViewToken } from "react-native";
 import { Item } from "../services/mockData";
 import { useState, useCallback } from "react";
 import Video from "./Video";
@@ -18,7 +18,9 @@ type VerticalListProps = {
 const VerticalCarousel = ({ data }: VerticalListProps) => {
   const insets = useSafeAreaInsets();
   const usableHeight =
-    Dimensions.get("window").height - insets.top - insets.bottom;
+    Platform.OS === "ios"
+      ? Dimensions.get("window").height - insets.top - insets.bottom
+      : Dimensions.get("window").height;
   const [visibleIndex, setVisibleIndex] = useState(0);
   const [currentVideo, setCurrentVideo] = useState<Item | null>(null);
 
