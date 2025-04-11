@@ -9,14 +9,16 @@ import React from "react";
 import ModalComments from "./ModalComments";
 import ModalSharing from "./ModalSharing";
 import ModalOptions from "./ModalOptions";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type VerticalListProps = {
   data: Item[];
 };
-const { height } = Dimensions.get("window");
-const ITEM_SIZE = height;
 
 const VerticalCarousel = ({ data }: VerticalListProps) => {
+  const insets = useSafeAreaInsets();
+  const usableHeight =
+    Dimensions.get("window").height - insets.top - insets.bottom;
   const [visibleIndex, setVisibleIndex] = useState(0);
   const [currentVideo, setCurrentVideo] = useState<Item | null>(null);
 
@@ -64,12 +66,13 @@ const VerticalCarousel = ({ data }: VerticalListProps) => {
             openModalComments={() => handleOpenComments(item)}
             openModalSharing={() => handleOpenSharing(item)}
             openModalOptions={() => openModalOptions()}
+            itemHeight={usableHeight}
           />
         )}
         pagingEnabled
         decelerationRate="fast"
         showsVerticalScrollIndicator={false}
-        estimatedItemSize={ITEM_SIZE}
+        estimatedItemSize={usableHeight}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{
           itemVisiblePercentThreshold: 30,

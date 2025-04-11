@@ -1,6 +1,7 @@
 import { StyleSheet, StatusBar as RNStatusBar } from "react-native";
 import React, { forwardRef, useCallback, useMemo } from "react";
 import { BottomSheetBackdrop, BottomSheetModal } from "@gorhom/bottom-sheet";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type Ref = BottomSheetModal;
 
@@ -22,7 +23,9 @@ const CustomBottomSheedModal = forwardRef<Ref, CustomBottomSheedModalProps>(
       ),
       []
     );
-    const topInset = RNStatusBar.currentHeight || 0;
+    const insets = useSafeAreaInsets();
+    const topInset = insets.top;
+    const bottomInset = insets.bottom;
     const snapPoints = useMemo(() => {
       return isDynamic ? undefined : ["70%"];
     }, [isDynamic]);
@@ -48,6 +51,7 @@ const CustomBottomSheedModal = forwardRef<Ref, CustomBottomSheedModalProps>(
         handleIndicatorStyle={styles.handleIndicator}
         handleStyle={styles.handle}
         topInset={topInset}
+        bottomInset={bottomInset}
       >
         {children}
       </BottomSheetModal>

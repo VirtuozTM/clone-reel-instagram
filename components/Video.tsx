@@ -17,6 +17,7 @@ import {
 import { useState, useEffect, memo, useRef } from "react";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useEvent, useEventListener } from "expo";
+
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -26,6 +27,7 @@ import Animated, {
   withDelay,
   withSequence,
 } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type VideoProps = {
   item: Item;
@@ -33,10 +35,8 @@ type VideoProps = {
   openModalComments: () => void;
   openModalSharing: () => void;
   openModalOptions: () => void;
+  itemHeight: number;
 };
-
-const { height } = Dimensions.get("window");
-const ITEM_SIZE = height;
 
 export type VideoRef = {
   checkVisibility: () => void;
@@ -48,13 +48,13 @@ const VideoComponent = ({
   openModalComments,
   openModalSharing,
   openModalOptions,
+  itemHeight,
 }: VideoProps) => {
   const [isFollowed, setIsFollowed] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(item.likesCount);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-
   const progress = useSharedValue(0);
   const overlayOpacity = useSharedValue(0);
   const descriptionHeight = useSharedValue(16);
@@ -62,6 +62,7 @@ const VideoComponent = ({
   const bigHeartScale = useSharedValue(0);
   const bigHeartOpacity = useSharedValue(0);
   const containerRef = useRef<View>(null);
+  const insets = useSafeAreaInsets();
 
   // // On crée un player par item
   const player = useVideoPlayer(item.videoSource, (playerInstance) => {
@@ -216,7 +217,7 @@ const VideoComponent = ({
   });
 
   return (
-    <View ref={containerRef} style={{ height: ITEM_SIZE }}>
+    <View ref={containerRef} style={{ height: itemHeight }}>
       <VideoView
         style={StyleSheet.absoluteFill}
         player={player}

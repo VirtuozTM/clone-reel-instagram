@@ -21,9 +21,14 @@ export default function Index() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingTop: insets.top, paddingBottom: insets.bottom },
+      ]}
+    >
       <VerticalCarousel data={memoizedVideos} />
-      <StatusBar style="dark" translucent />
+      <StatusBar style="dark" />
     </View>
   );
 }
