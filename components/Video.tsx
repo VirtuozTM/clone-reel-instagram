@@ -1,4 +1,4 @@
-import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 import { Item } from "../services/mockData";
 import { Image } from "expo-image";
@@ -9,7 +9,6 @@ import {
   MusicNotesSimple,
   PaperPlaneTilt,
   SealCheck,
-  Pause,
   Play,
   Camera,
   SpeakerHigh,
@@ -27,34 +26,38 @@ import Animated, {
   withDelay,
   withSequence,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useVideoStore } from "../stores/useVideoStore";
 
 type VideoProps = {
   item: Item;
-  shouldPlay: boolean;
+  index: number;
   openModalComments: () => void;
   openModalSharing: () => void;
   openModalOptions: () => void;
   itemHeight: number;
 };
 
-export type VideoRef = {
-  checkVisibility: () => void;
-};
-
 const VideoComponent = ({
   item,
-  shouldPlay,
+  index,
   openModalComments,
   openModalSharing,
   openModalOptions,
   itemHeight,
 }: VideoProps) => {
+  // store
+  const visibleVideoIndex = useVideoStore((state) => state.visibleVideoIndex);
+  const isPaused = useVideoStore((state) => state.isPaused);
+  const setIsPaused = useVideoStore((state) => state.setIsPaused);
+  const shouldPlay = index === visibleVideoIndex;
+
+  // states
   const [isFollowed, setIsFollowed] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(item.likesCount);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+
+  // animations
   const progress = useSharedValue(0);
   const overlayOpacity = useSharedValue(0);
   const descriptionHeight = useSharedValue(16);
@@ -63,16 +66,18 @@ const VideoComponent = ({
   const bigHeartOpacity = useSharedValue(0);
   const containerRef = useRef<View>(null);
 
-  // // On crée un player par item
-  const player = useVideoPlayer(item.videoSource, (playerInstance) => {
-    playerInstance.loop = true;
-    playerInstance.play(); // on démarre automatiquement
-    playerInstance.timeUpdateEventInterval = 0.05; // on reçoit un event 10x par seconde
+  const player = useVideoPlayer(item.videoSource, (p) => {
+    p.loop = true;
+    p.timeUpdateEventInterval = 0.05;
   });
 
   // // On récupère le statut "isPlaying"
   const { isPlaying } = useEvent(player, "playingChange", {
     isPlaying: player.playing,
+  });
+
+  const { status } = useEvent(player, "statusChange", {
+    status: player.status,
   });
 
   // // On récupère la position courante (currentTime) et la durée (duration) via timeUpdate
@@ -84,13 +89,13 @@ const VideoComponent = ({
     currentOffsetFromLive: null,
   });
 
-  const currentTime = timeUpdate.currentTime;
-
   useEventListener(player, "playToEnd", () => {
-    console.log("Vidéo terminée, reset progress");
+    console.log(`💀 [${item.key}] => playToEnd => reset progress`);
     progress.value = 0;
     player.currentTime = 0;
   });
+
+  const currentTime = timeUpdate.currentTime;
 
   // // Calcul du ratio d'avancement
   useEffect(() => {
@@ -104,17 +109,16 @@ const VideoComponent = ({
   // Auto-play/pause quand l'item devient visible ou non
   useEffect(() => {
     if (!player) return;
-
-    if (shouldPlay) {
-      console.log("play");
+    if (shouldPlay && status === "readyToPlay") {
+      console.log(`▶️ [${item.key}] => PLAY (status=${status})`);
       player.play();
-      setIsPaused(false);
     } else {
-      console.log("pause");
+      console.log(
+        `⏸ [${item.key}] => PAUSE (shouldPlay=${shouldPlay}, status=${status})`
+      );
       player.pause();
-      setIsPaused(true);
     }
-  }, [shouldPlay, player]);
+  }, [shouldPlay, status]);
 
   useEffect(() => {
     // Animer l'overlay
@@ -129,8 +133,8 @@ const VideoComponent = ({
     });
   }, [isDescriptionExpanded]);
 
-  // Au tap, on toggle play/pause
-  const handleTogglePlayPause = () => {
+  // On peut s’offrir un petit bouton pour toggler manuellement
+  const togglePlayPause = () => {
     if (isPlaying) {
       player.pause();
       setIsPaused(true);
@@ -220,10 +224,10 @@ const VideoComponent = ({
       <VideoView
         style={StyleSheet.absoluteFill}
         player={player}
-        allowsFullscreen={false}
-        allowsPictureInPicture={false}
         contentFit="cover"
         nativeControls={false}
+        allowsFullscreen={false}
+        allowsPictureInPicture={false}
       />
 
       <Animated.View style={bigHeartAnimatedStyle}>
@@ -231,10 +235,7 @@ const VideoComponent = ({
       </Animated.View>
 
       {/* Overlay en pressable pour toggle play/pause */}
-      <Pressable
-        style={[StyleSheet.absoluteFill]}
-        onPress={handleTogglePlayPause}
-      >
+      <Pressable style={[StyleSheet.absoluteFill]} onPress={togglePlayPause}>
         {isPaused && (
           <View style={styles.pauseIconContainer}>
             <View style={styles.soundIconBackground}>
@@ -374,6 +375,17 @@ const VideoComponent = ({
 };
 
 const styles = StyleSheet.create({
+  debugContainer: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    padding: 5,
+  },
+  debugText: {
+    color: "#FFF",
+    fontSize: 12,
+  },
   authorName: {
     fontSize: 14,
     fontWeight: "700",
@@ -463,9 +475,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default memo(VideoComponent, (prevProps, nextProps) => {
-  return (
-    prevProps.item.key === nextProps.item.key &&
-    prevProps.shouldPlay === nextProps.shouldPlay
-  );
-});
+export default memo(VideoComponent);
