@@ -26,6 +26,7 @@ L'application est développée avec :
 - **Reanimated** pour des animations fluides et optimisées
 - **Skia** pour le rendu graphique haute performance et les effets visuels avancés
 - **phosphor-react-native** : icônes stylées et cohérentes
+- **legend-list** : liste performante avec recycling
 - **expo-image** : pour afficher les images de profil et miniatures
 
 ## 📦 Bibliothèques principales
@@ -34,7 +35,7 @@ Voici un aperçu des dépendances utilisées dans le projet :
 
 ### 🏗️ **Technologies utilisées**
 
-- [@shopify/flash-list](https://shopify.github.io/flash-list/) - Liste performante avec pagination
+- [@legendapp/list](https://legendapp.com/open-source/list/api/gettingstarted/) - Liste performante avec pagination
 - [expo-video](https://docs.expo.dev/versions/latest/sdk/video/) - Composant vidéo avancé
 - [react-native-reanimated](https://docs.expo.dev/versions/latest/sdk/reanimated/) - Animations fluides et non bloquantes
 - [@gorhom/bottom-sheet](https://gorhom.dev/react-native-bottom-sheet/) - Bottom sheets dynamiques
