@@ -1,9 +1,5 @@
 # 📱 Clone Reel Instagram
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/2d34e333-ca9c-4f8e-a827-f2881c18e651"/>
-</p>
-
 ## 📌 Objectif
 
 Ce projet est né d'une simple expérimentation : créer une liste verticale avec des vidéos. Rapidement, le rendu s'est approché du design des Reels d'Instagram… alors j’ai décidé d’aller jusqu’au bout et de cloner l’expérience utilisateur de A à Z. Résultat : une app fluide, animée, immersive et modulable.
