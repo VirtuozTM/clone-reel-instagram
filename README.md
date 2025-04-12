@@ -65,7 +65,7 @@ Dans cette application, nous avons un feed vertical (type Reels/TikTok) avec Fla
 
 Le problème classique : ces listes recyclent les vues pour améliorer les performances. Un état local ou un ref dans le parent ne suffit pas toujours à forcer le re-render correct — ça peut produire un délai avant que la vidéo se lance, voire des vidéos qui ne se lancent pas du tout.
 
-# **La solution** : un store global (Zustand)
+### **La solution** : un store global (Zustand)
 
 1. Stocker l’index visible
 
