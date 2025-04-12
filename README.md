@@ -10,7 +10,7 @@ Ce projet est né d'une simple expérimentation : créer une liste verticale ave
 
 ## 🎯 Fonctionnalités principales
 
-- **🎥 Lecture auto des vidéos** : Présentation des images dans une grille FlashList irrégulière et optimisée
+- **🎥 Lecture auto des vidéos** : Présentation des vidéos dans une grille LegendList irrégulière et optimisée
 - **🎮 Swipe vertical fluide** : Navigation par catégories d'images
 - **💬 Commentaires** : Application de différents filtres pour affiner les résultats
 - **📤 Partage personnalisé** : Recherche d'images via une barre de recherche
@@ -45,7 +45,7 @@ Voici un aperçu des dépendances utilisées dans le projet :
 - [phosphor-react-native](https://phosphoricons.com/) - Pack d’icônes léger et moderne
 - [expo-image](https://docs.expo.dev/versions/latest/sdk/image/) - Chargement d’image performant
 
-## 🚀 Comment démarrer ?
+## 🚀 **Comment démarrer ?**
 
 ### 1️⃣ Cloner le projet
 
@@ -62,6 +62,37 @@ Voici un aperçu des dépendances utilisées dans le projet :
 `npm run start`
 
 📌 **Astuce** : Utilisez l'application Expo Go sur votre téléphone pour tester immédiatement l'application !
+
+## 🏆 **Gestion de l’autoplay grâce à Zustand**
+
+Dans cette application, nous avons un feed vertical (type Reels/TikTok) avec FlashList ou LegendList.
+
+Le problème classique : ces listes recyclent les vues pour améliorer les performances. Un état local ou un ref dans le parent ne suffit pas toujours à forcer le re-render correct — ça peut produire un délai avant que la vidéo se lance, voire des vidéos qui ne se lancent pas du tout.
+
+# **La solution** : un store global (Zustand)
+
+1. Stocker l’index visible
+
+`onViewableItemsChanged` détecte l’item majoritairement à l’écran. On appelle `setVisibleVideoIndex(index)` dans le store.
+
+2. Au niveau de chaque composant vidéo, on récupère l’index globalement :
+
+```
+const visibleVideoIndex = useVideoStore((state) => state.visibleVideoIndex);
+const shouldPlay = (index === visibleVideoIndex);
+```
+
+3. Lecture ou pause automatique
+
+Dans le composant vidéo, si shouldPlay est true et que le player est prêt (status === 'readyToPlay'), on appelle player.play(), sinon player.pause().
+
+Résultat : chaque vidéo sait immédiatement quand se lancer ou s’arrêter, sans attendre un re-render incertain du parent.
+
+Pourquoi ça marche ?
+
+- FlashList/LegendList peuvent recycler les composants, mais le store est toujours à jour.
+- Dès que l’index visible change, tous les items abonnés reçoivent la mise à jour.
+- On évite les soucis de timing ou d’état local potentiellement obsolète dans le parent.
 
 ## 📬 Contact
 
